@@ -1,0 +1,237 @@
+% !TEX TS-program = xelatex
+% File: house-style-and-preamble.tex
+% Purpose: Brett's typical preamble + usage conventions:
+%   examples (langsci-gb4e), italics vs. quotation, dashes, contractions, plain style, etc.
+
+\documentclass[12pt]{article}
+
+% --- Layout & language ---
+\usepackage[margin=1in]{geometry}
+\usepackage[british]{babel}            % British conventions; use -ize spellings in prose
+\usepackage{fontspec}                  % Xe/LuaLaTeX
+\setmainfont{Charis SIL}
+\usepackage[final]{microtype}
+\usepackage{marvosym}                  % \Cross symbol for cross-linguistic subscripts
+
+% --- Quotation marks ---
+\usepackage{csquotes}                  % \enquote{…} with locale-aware quoting
+\usepackage{orcidlink}
+
+% --- Hyperlinks ---
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue,
+  pdfauthor={Brett Reynolds},
+  pdftitle={House Style \& Preamble}
+}
+
+% --- Numbered linguistic examples (LangSci/gb4e wrapper, no 'exe' env) ---
+\usepackage{langsci-gb4e}
+\noautomath
+
+% --- Lists & small utilities ---
+\usepackage{enumitem}
+\setlist{itemsep=0.3\baselineskip, topsep=0.3\baselineskip}
+\usepackage{xspace}
+
+% =========================
+% Bibliography (biblatex)
+% =========================
+% Default portable setup:
+\usepackage[backend=biber,style=apa,natbib=true,doi=true,isbn=false,url=true]{biblatex}
+\addbibresource{references.bib}
+
+% If working in LangSci projects, you can switch to their unified style:
+% \usepackage[backend=biber,style=unified,natbib=true,doi=true,isbn=false,url=false]{biblatex}
+
+% =========================
+% Light house macros
+% =========================
+% Mention (italics) vs. quotation marks
+\newcommand{\term}[1]{\textit{#1}}
+
+% Small-caps abbreviations for glosses
+\newcommand{\abbr}[1]{\textsc{#1}}
+
+% Cross-linguistic subscript marker (e.g., \textsc{subject}\crossmark)
+\newcommand{\crossmark}{\textsubscript{\Cross}}
+
+% Judgement markers
+\newcommand{\ungram}[1]{*\!#1}
+\newcommand{\marg}[1]{?\!#1}
+\newcommand{\odd}[1]{\#\!#1}
+
+% e.g., i.e., etc., with sensible spacing
+\newcommand{\eg}{e.g.,\xspace}
+\newcommand{\ie}{i.e.,\xspace}
+\newcommand{\etc}{etc.\xspace}
+
+% =========================
+% Document
+% =========================
+\title{House Style \& Preamble:\\A Compact Demonstration}
+\author{Brett Reynolds \orcidlink{0000-0003-0073-7195}\thanks{I used ChatGPT 5, Claude Sonnet 4.5, and Gemini Pro 2.5 extensively in drafting and revising the paper. I reviewed, edited, and approved all the material and take full responsibility for the final text and conclusions. \href{mailto:brett.reynolds@humber.ca}{brett.reynolds@humber.ca}}\\
+Humber Polytechnic \& University of Toronto}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Mention vs.\ quotation} \label{mention}
+Use italics for mention of forms and categories; reserve quotation marks for actual quotations.
+Mention: \term{going forward} is best analysed as a preposition selecting a directional PP.
+Quotation (with \verb|\enquote|): As \enquote{going forward} spread in business English, its syntax broadened.
+Nested quotes: \enquote{Outer with an \enquote{inner} quote}.
+Semantic meanings: use single `quote'
+
+\section{Dashes, ranges, hyphens} \label{dashes}
+Use an en dash (~-- ) with surrounding spaces for parenthetical asides: the category is stable~-- within limits~-- across registers.
+Use an en dash for ranges and relations: 2001--2025; pp.\ 113--127; the form--function distinction.
+Use hyphens only for compounds: corpus-based study, task-specific rubric.
+
+\section{Contractions and plain style} \label{contractions}
+Contractions are preferred: \enquote{We don’t gain anything by multiplying categories.}
+Prefer direct verbs and short clauses. Delete throat-clearers:
+\begin{itemize}[nosep]
+  \item \textbf{Avoid:} \enquote{It is important to note that the results clearly show that \dots}
+  \item \textbf{Prefer:} \enquote{The results show \dots}
+  \item \textbf{Avoid:} Overly strong modals like \enquote{must}. E.g., \enquote{The features must cluster reliably.}
+  \item \textbf{Prefer:} Softer phrasing. E.g., \enquote{The features should cluster reliably.}
+\end{itemize}
+Prefer simple coordinators (and, but) to hackneyed "academic" adverbs (moreover, furthermore, nevertheless, yet)
+Sentence-initial coordinators are fine where they improve flow. Avoid overuse.
+
+\section{Numbered examples with \texttt{langsci-gb4e}}\label{numbered-examples}
+Single example (note: no \texttt{exe} environment):
+\ea\label{ex:simple}
+\textit{The committee have decided to adjourn.}
+\z
+
+Judgement markers and subexamples:
+\ea\label{ex:sub}
+	\ea \textit{She has already left.}
+	\ex[*]{\ungram{\textit{She have already left.}}}
+	\ex[\#]{\odd{\textit{The square triangle laughed.}}}
+	\z
+\z
+
+Cross-reference: see (\ref{ex:sub}).
+
+Interlinear gloss (\texttt{\textbackslash gll}/\texttt{\textbackslash glt}; abbreviations in small caps):
+\ea\label{ex:gloss}
+\gll Ich sehe den Hund. \\
+     I see  the.\abbr{acc} dog \\
+\glt `I see the dog.'
+\z
+
+\section{Category vs.\ function} \label{category}
+Distinguish lexical categories (e.g., \term{determinative}, \term{adjective}) from functions (e.g., \term{head}, \term{modifier}, \term{subject}).
+In \enquote{\term{those} books}, \term{those} is a \term{determinative} (category) functioning as a \term{determinative} (function) of the NP.
+Use the cross symbol to mark comparative concepts: \textsc{subject}\crossmark, \textsc{topic}\crossmark, \textsc{noun}\crossmark. Avoid literal \texttt{\textsubscript\{cross\}} in new writing.
+
+\section{Minimal citation examples (biblatex)}\label{citation}
+Parenthetical: \citep{HuddlestonPullum2002}. Textual: \textcite{Pullum2018}.
+Multiple: \citep{HuddlestonPullum2002,Pullum2018}. Page: \citep[113--127]{HuddlestonPullum2002}.
+
+\section{Journal article formatting}\label{journal-formatting}
+Scholarly journals use structural apparatus sparingly. Avoid textbook-style formatting.
+
+\subsection{Sections and subsections}
+\textbf{Use:} \verb|\section{}| and \verb|\subsection{}| for major divisions. Keep subsections to substantial content (3+ paragraphs or equivalent). A one-paragraph subsection should be integrated into the section prose.
+
+\textbf{Avoid:} \verb|\paragraph{}| headings. Replace with strong topic sentences and discourse markers.
+
+\begin{itemize}[nosep]
+  \item \textbf{Wrong:} \verb|\paragraph{Flexible lexical categories.}| What about languages like Salish...
+  \item \textbf{Right:} A first objection concerns languages with flexible lexical categories. What about Salish...
+\end{itemize}
+
+\subsection{Bold, bullets, enumeration}
+\textbf{Avoid bold labels in prose.} Taxonomies and argument sequences should flow as narrative, not as itemized lists.
+
+\begin{itemize}[nosep]
+  \item \textbf{Wrong:} \textbf{(i) Cross-linguistic property covariation.} The diagnostic features must cluster...
+  \item \textbf{Right:} First, the diagnostic features must cluster...
+\end{itemize}
+
+\textbf{Enumerated lists} are acceptable for:
+\begin{itemize}[nosep]
+  \item Hypothesis or prediction lists (Section 9 in main.tex)
+  \item Linguistic examples (\verb|\ex| from langsci-gb4e)
+  \item Illustrative codebook entries
+\end{itemize}
+
+\textbf{Avoid} for:
+\begin{itemize}[nosep]
+  \item Argumentative sequences (use prose with transitions: ``first,'' ``second,'' ``finally'')
+  \item Objection-reply pairs (use discourse markers: ``A first objection,'' ``A related worry'')
+  \item Before/after pedagogical contrasts (use narrative: ``Traditional accounts treat... The present framework dissolves...'')
+\end{itemize}
+
+\subsection{Transitions and discourse markers}
+Use ordinal markers and discourse connectives for flow:
+\begin{itemize}[nosep]
+  \item \textbf{Sequence:} first, second, third; one [concern], another, a final [point]
+  \item \textbf{Objections:} A first objection concerns...; A second question asks...; A related worry...; Finally, does...
+  \item \textbf{Illustrations:} Consider first...; A second illustration...; The clearest case...
+\end{itemize}
+
+\section{Dual-audience accessibility}\label{dual-audience}
+When writing for readers from multiple disciplines (e.g., linguists and philosophers), make cross-disciplinary terminology accessible without sacrificing rigor.
+
+\subsection{Paragraph length}
+Keep paragraphs under 100 words on average. Dense 200+ word paragraphs should be broken into 2--4 shorter units with clear topic sentences. Aim for ~60 words per paragraph in body text.
+
+\subsection{Parenthetical glosses}
+When introducing technical terms, add brief functional explanations:
+\begin{itemize}[nosep]
+  \item Latent variables (quantities representing unobserved category strength)
+  \item Spearman's $\rho$ (a rank correlation measure)
+  \item Differential object marking (where only some objects trigger case or agreement)
+\end{itemize}
+
+\subsection{Concrete before abstract}
+Introduce technical apparatus with concrete examples or plain-language motivation:
+\begin{itemize}[nosep]
+  \item \textbf{Wrong:} Define a vector of observable diagnostics: $\mathbf{n}_L = \langle \text{ArgHead}, \dots \rangle$.
+  \item \textbf{Right:} Traditional typology trades in binary tallies: language X ``has'' adjectives or it doesn't. The comparanda~$\times$~categories matrix provides something better: explicit measurement models. For nominality, define a vector...
+\end{itemize}
+
+\subsection{Comparanda notation and terminology}
+Maintain a strict distinction between comparative concepts and language-specific categories:
+\begin{itemize}[nosep]
+  \item Use \textsc{Term}\textsubscript{cross} for cross-linguistic comparanda (syntactic functions, semantic targets, discourse roles, comparative categories). Note: always use \verb|\textsubscript{}| for these labels; do not use the underscore character (\_) directly in text mode.
+  \item Use \textsc{Term}\textsubscript{\text{eng}} (or other language tag) for language-specific realisations; \textsc{Term}\textsubscript{\text{int}} for language-internal discussion without naming a language.
+  \item Reserve \emph{function} (without modifier) for syntactic functions only; use \emph{target} for semantic targets and \emph{role} for discourse/pragmatic roles. Use \emph{category} for lexical lexical categories or their phrasal projections.
+  \item Remind readers that mappings between axes are rarely one-to-one: a single expression can realise multiple functions, targets, and roles simultaneously.
+\end{itemize}
+
+\section{BibTeX conventions}\label{bibtex}
+Protect capitals in proper nouns and first words after colons using braces:
+
+\begin{verbatim}
+title = {The {Cambridge} Grammar of the {English} Language}
+title = {Radical Construction Grammar: {Syntactic} Theory...}
+title = {Character identity mechanisms: {A} conceptual model...}
+\end{verbatim}
+
+\textbf{What to protect:}
+\begin{itemize}[nosep]
+  \item Proper nouns: \{Cambridge\}, \{English\}, \{American\}
+  \item First word after colon: \{Syntactic\}, \{A\}, \{An\}
+  \item Acronyms: \{HPC\}, \{DOM\}
+\end{itemize}
+
+\textbf{What NOT to protect:}
+\begin{itemize}[nosep]
+  \item Common nouns, adjectives, verbs (unless part of proper noun)
+  \item Title-initial words (BibTeX handles these automatically)
+\end{itemize}
+
+\clearpage
+\printbibliography
+
+\end{document}
