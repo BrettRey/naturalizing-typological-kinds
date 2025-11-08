@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**TEST EDIT:** This line was added to test the sync hook.
+
 ## Project Overview
 
 This is an academic research paper in linguistic typology titled "Naturalizing Typological Kinds: Comparanda, Mechanisms, and Measurement" by Brett Reynolds. The paper proposes a homeostatic framework for handling cross-linguistic comparison that separates comparative concepts from language-specific realizations.
