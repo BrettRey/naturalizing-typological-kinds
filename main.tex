@@ -249,7 +249,37 @@ Semantic targets and discourse roles~-- \textsc{definiteness}\textsubscript{\Cro
 
 The firewall protocol verifies Level-I comparanda  through behavioural diagnostics independently of any morphosyntactic exponent before recording mappings in $M_L$. This workflow parallels established semantic fieldwork methods that separate meaning probes from morphosyntactic packaging \parencite{Matthewson2004} and mirrors experimental acceptability-judgment practice in psycholinguistics, where interpretations are elicited before forms are analysed \parencite{Cowart1997,Schuetze1996}. Semantic targets and discourse roles are never treated as functions or categories but diagnosed independently and only then linked, via the mapping, to whichever functions and categories express them in $L$.
 
-Defining Level-I comparanda as comparative concepts with operational diagnostics that don't presuppose any single exponent (Rule~B) provides the solution: test the comparandum directly in specific discursive contexts, then record which forms express it in each language.
+Defining Level-I comparanda as comparative concepts with operational diagnostics that don't presuppose any single exponent (Rule~B) provides the solution: test the comparandum directly in specific discursive contexts, then record which forms express it in each language. For each Level~I comparandum $c$ (semantic target or discourse role) and each language $L$, follow the five-step protocol illustrated in Figure~\ref{fig:workflow}, which enforces independence of diagnostics from morphosyntactic form.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  node distance=1.5cm,
+  box/.style={rectangle, draw=black, thick, minimum width=4cm, minimum height=1cm, align=center},
+  arrow/.style={->, thick}
+]
+
+\node[box] (step1) {1. Establish diagnostic traction};
+\node[box, below of=step1] (step2) {2. Apply diagnostics\\(withhold forms)};
+\node[box, below of=step2] (step3) {3. Identify candidate realizations};
+\node[box, below of=step3] (step4) {4. Score mappings\\(sensitivity × precision)};
+\node[box, below of=step4] (step5) {5. Record provenance \& reliability};
+
+\draw[arrow] (step1) -- (step2);
+\draw[arrow] (step2) -- (step3);
+\draw[arrow] (step3) -- (step4);
+\draw[arrow] (step4) -- (step5);
+
+% Firewall annotation
+\draw[dashed, red, thick] ([xshift=-2.5cm]step2.west) -- ([xshift=2.5cm]step2.east);
+\draw[dashed, red, thick] ([xshift=-2.5cm]step3.west) -- ([xshift=2.5cm]step3.east);
+\node[right=0.5cm of step2.east, text=red] {FIREWALL};
+\node[right=0.5cm of step3.east, text=red] {FIREWALL};
+
+\end{tikzpicture}
+\caption{Anti-circularity workflow: diagnose the target (steps 1--2) before examining forms (steps 3--5). The firewall between steps 2 and 3 enforces independence.}
+\label{fig:workflow}
+\end{figure}
 
 \subsection{Why the firewall is non-negotiable}\label{subsec:independence-why}
 
