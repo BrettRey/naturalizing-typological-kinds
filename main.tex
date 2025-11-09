@@ -486,94 +486,6 @@ These probabilistic specifications make CIM-L testable. For example, the regener
 
 Prior predictive validation provides a crucial quality check. Expressing these constants as priors with uncertainty enables \textbf{prior predictive checks}: simulate fake language histories by drawing $(\delta, \gamma, \eta)$ from their priors and generating diachronic trajectories. If the simulated trajectories produce unrealistic timescales (e.g., grammaticalization in 50 years or 5000 years) or implausible pattern frequencies, the priors require revision. This workflow ensures that the theory's causal assumptions are testable \emph{before} confronting empirical data, satisfying the demand that models make explicit predictions about observable patterns.
 
-\section{From labels to measurement}\label{sec:measurement}
-Traditional typology trades in binary tallies: language X \term{has} adjectives or it doesn't, nouns \term{mark} number or they don't. This forces clean boundaries where the data show gradients and partial patterns. The three-level mapping (Section~\ref{sec:matrix}) and the firewall protocol (Section~\ref{sec:hygiene}) provide the foundation for something better: explicit measurement models with declared performance thresholds.
-
-The first move is to replace binary category labels with \emph{latent variables} that represent the degree to which a language instantiates a given comparative concept. For \textsc{nominality}\textsubscript{\Cross}, define a vector of observable diagnostics:
-\[
-  \begin{aligned}
-  \mathbf{n}_L = \big\langle
-     &\text{ArgHead},\ \text{Poss/Quant Interface},\ \text{NomMorph},\\
-     &\text{Det/Class System},\ \text{Predication Profile},\ \text{Modification Profile}
-  \big\rangle.
-  \end{aligned}
-\]
-
-\subsection{Deriving the measurement model from ontological commitments}\label{subsec:measurement-derivation}
-
-The measurement structure follows directly from the three-level ontology rather than being asserted post-hoc. The comparandum-indexed matrix for language $L$ can be estimated via a \textbf{two-layer hierarchical model} that separates diagnostic evidence (Level~I) from realization evidence (Level~III), preserving anti-circularity while ensuring identifiability.
-
-Layer 1 focuses on diagnostic evidence. Behavioral diagnostics $d_i$ measure the latent strength $\eta_{L,c}$ of comparandum $c$ in language $L$ without reference to morphosyntactic forms:
-
-\begin{align}
-d_{L,i} &\sim \text{Bernoulli}(\pi_i) \\
-\text{logit}(\pi_i) &= \alpha_i + \beta_i \eta_{L,c} + u_{\text{fam}(L)} + v_{\text{coder}(i)}
-\end{align}
-
-where:
-\begin{itemize}
-  \item $\eta_{L,c} \sim \text{Normal}(0, 1)$ is the latent comparandum strength (mean fixed at 0 and variance at 1 to anchor location and scale)
-  \item $d_i$ is diagnostic $i$ (e.g., ArgHead, PossInterface from Section~\ref{subsec:diagnostic-battery})
-  \item $\alpha_i \sim \text{Normal}(0, 2)$ is diagnostic-specific difficulty
-  \item $\beta_i \sim \text{Normal}(0, 1)$ is diagnostic discrimination (how informative the test is)
-  \item $u_{\text{fam}} \sim \text{Normal}(0, \sigma_{\text{fam}})$ captures phylogenetic clustering via partial pooling
-  \item $v_{\text{coder}} \sim \text{Normal}(0, \sigma_{\text{coder}})$ captures systematic coder biases
-  \item $\sigma_{\text{fam}}, \sigma_{\text{coder}} \sim \text{Exponential}(1)$ are hierarchical standard deviations
-\end{itemize}
-
-Crucially, diagnostics never condition on forms $\phi$, ensuring $(F_{L,c,\phi} \perp d_{L,i} \mid \eta_{L,c})$ as required by anti-circularity (Rule~B in Figure~\ref{fig:dag}).
-
-Layer 2 captures realization evidence. Forms $F_{L,c,\phi,t}$ (indexed by tokens $t$) are observed conditional on latent comparandum strength:
-
-\begin{align}
-F_{L,c,\phi,t} &\sim \text{Bernoulli}(\rho_{L,c,\phi,t}) \\
-\text{logit}(\rho_{L,c,\phi,t}) &= \kappa_{L,c,\phi} + \lambda_{c,\phi} \eta_{L,c}
-\end{align}
-
-with monotonicity constraint $\lambda_{c,\phi} \geq 0$ (stronger comparanda can't decrease form probability). Priors:
-
-\begin{align}
-\kappa_{L,c,\phi} &\sim \text{Normal}(\mu_{\kappa}, 1.5) \\
-\lambda_{c,\phi} &\sim \text{HalfNormal}(0, 1)
-\end{align}
-
-where $\mu_{\kappa}$ is initialized from analyst provisional weights $w_L^{\text{prov}}$ via the logit transform.
-
-The weight function and false-positive rate are deterministic functions of structural parameters:
-
-\begin{align}
-w_L(c,\phi) &= \sigma(\kappa_{L,c,\phi} + \lambda_{c,\phi}) = \Pr(F_{L,c,\phi}=1 \mid \eta_{L,c}=1) \\
-q_L(c,\phi) &= \sigma(\kappa_{L,c,\phi}) = \Pr(F_{L,c,\phi}=1 \mid \eta_{L,c}=0)
-\end{align}
-
-where $\sigma$ is the logistic function. Operationally, $\eta=0$ corresponds to \textbf{diagnostic absence}: all Layer~1 diagnostics score below their minimal thresholds, indicating the comparandum is not active in that context. This makes $q_L$ empirically estimable from tokens where the comparandum is diagnosed as absent yet the form appears. Because $\kappa$ and $\lambda$ have priors, $w_L$ and $q_L$ inherit posterior distributions; the matrix $M_L$ stores $\mathbb{E}[w_L \mid \text{data}]$ with 80\% credible intervals.
-
-Four mechanisms ensure unique parameter estimation:
-\begin{enumerate}
-  \item \textbf{Location anchoring:} Fixing $\mathbb{E}[\eta]=0$ eliminates translation invariance between $\eta$ and $\kappa$ (shifting both by a constant would otherwise leave the likelihood unchanged)
-  \item \textbf{Scale anchoring:} Fixing $\text{Var}(\eta)=1$ breaks the $(k \cdot w_L, \eta/k)$ scaling symmetry
-  \item \textbf{Monotonicity:} The constraint $\lambda \geq 0$ prevents sign ambiguity
-  \item \textbf{Independent measurements:} Layers~1 and~2 provide conditionally independent evidence sources, yielding two equations for two latent quantities ($\eta$ and $\kappa$,$\lambda$)
-\end{enumerate}
-
-Any alternative parameterization would violate at least one constraint, ensuring the posterior is proper.
-
-The estimation workflow proceeds in four steps:
-\begin{enumerate}
-  \item Fit Layer~1 to obtain posterior draws of $\eta_{L,c}$ from diagnostic data alone
-  \item Condition on $\eta_{L,c}$ samples while fitting Layer~2, yielding joint posterior samples of $(\kappa, \lambda)$
-  \item Transform samples to $(w_L, q_L)$ and compute posterior summaries
-  \item Validate via posterior predictive checks: does the model generate diagnostic and form patterns consistent with observed data?
-\end{enumerate}
-
-This is a multilevel model because languages share evolutionary history. The phylogenetic random effect $u_{\text{fam}}$ implements partial pooling by genealogy, preventing spurious correlations from areal clustering. The latent comparandum strength $\eta_{L,c}$ is anchored at $\mathbb{E}[\eta]=0$ with $\text{Var}(\eta)=1$ to ensure both location and scale identifiability.
-
-The two-layer structure formalizes the paper's core methodological commitment. Level~I comparanda ($\eta$) are diagnosed \textit{first} from behavioral evidence alone (Layer~1), then Level~III realizations ($\kappa$, $\lambda$) are estimated \textit{conditional} on that diagnosis (Layer~2). This workflow embodies Rule~B: withhold candidate forms when diagnosing semantic targets.
-
-The same logic extends to other comparative concepts: \textsc{adjectivality}\textsubscript{\Cross} (modification, predication, gradability, comparison), \textsc{verbiness}\textsubscript{\Cross} (predicate-head privileges, tense-aspect-mood morphology, argument structure). Each gets its own diagnostic vector and measurement model. Semantic targets are tested independently (Section~\ref{sec:hygiene}) and linked to categories only via the observed mappings in the matrix $M_L$ (Rule~B).
-
-Naturalization candidates are evaluated against declared projectibility metrics (ROC-AUC for classifiers, macro-F1 for multi-class prediction) with thresholds that have to  hold in held-out test data before promotion. Failure to meet these thresholds triggers explicit failure modes: too thin, too fat, negative, or indeterminate. The framework thus builds measurement discipline into the theoretical machinery.
-
 \section{A reproducible codebook (excerpt)}\label{sec:codebook}
 Measurement discipline requires operational codebooks: explicit diagnostics, decision rules, reliability checks, and provenance tracking for every comparandum (function, target, role) and every category. Below are four illustrative entries showing the required structure. A full implementation would provide this level of detail for every row in the comparanda inventory and every category under evaluation.
 
@@ -730,6 +642,98 @@ The framework builds on three commitments: comparanda discipline (explicit mappi
 The framework treats language-internal categories as genuine homeostatic property clusters: community-specific kinds maintained by cognitive, social, material, and diachronic mechanisms. A few comparative concepts~-- \textsc{noun} foremost among them~-- may qualify as \emph{naturalized}: weak HPCs sustained by recurrent but independent mechanisms across unrelated languages. These aren't universals (they're gradient, defeasible, and maintained by convergent evolution rather than shared essences), but they're not arbitrary analyst constructs either. The evidence for naturalization comes from the predictions in Section~\ref{sec:predictions}: trade-offs, regeneration pathways, compensatory elaboration, and decoupling of semantics from morphology.
 
 The result is a typology with fewer spurious universals, clearer explanations grounded in specifiable mechanisms, and replicable paths from description to prediction. The three-level mapping, the firewall protocol, and the measurement models provide an implementation blueprint; the formal specification in \texttt{src/typology.py} offers an auditable encoding of the theoretical commitments. What remains is empirical work: coding languages, testing predictions, refining diagnostics, and discovering which comparative concepts earn naturalized status and which dissolve under scrutiny.
+
+\clearpage
+
+\appendix
+
+\section{From labels to measurement}\label{sec:measurement}
+Traditional typology trades in binary tallies: language X \term{has} adjectives or it doesn't, nouns \term{mark} number or they don't. This forces clean boundaries where the data show gradients and partial patterns. The three-level mapping (Section~\ref{sec:matrix}) and the firewall protocol (Section~\ref{sec:hygiene}) provide the foundation for something better: explicit measurement models with declared performance thresholds.
+
+The first move is to replace binary category labels with \emph{latent variables} that represent the degree to which a language instantiates a given comparative concept. For \textsc{nominality}\textsubscript{\Cross}, define a vector of observable diagnostics:
+\[
+  \begin{aligned}
+  \mathbf{n}_L = \big\langle
+     &\text{ArgHead},\ \text{Poss/Quant Interface},\ \text{NomMorph},\\
+     &\text{Det/Class System},\ \text{Predication Profile},\ \text{Modification Profile}
+  \big\rangle.
+  \end{aligned}
+\]
+
+\subsection{Deriving the measurement model from ontological commitments}\label{subsec:measurement-derivation}
+
+The measurement structure follows directly from the three-level ontology rather than being asserted post-hoc. The comparandum-indexed matrix for language $L$ can be estimated via a \textbf{two-layer hierarchical model} that separates diagnostic evidence (Level~I) from realization evidence (Level~III), preserving anti-circularity while ensuring identifiability.
+
+Layer 1 focuses on diagnostic evidence. Behavioral diagnostics $d_i$ measure the latent strength $\eta_{L,c}$ of comparandum $c$ in language $L$ without reference to morphosyntactic forms:
+
+\begin{align}
+d_{L,i} &\sim \text{Bernoulli}(\pi_i) \\
+\text{logit}(\pi_i) &= \alpha_i + \beta_i \eta_{L,c} + u_{\text{fam}(L)} + v_{\text{coder}(i)}
+\end{align}
+
+where:
+\begin{itemize}
+  \item $\eta_{L,c} \sim \text{Normal}(0, 1)$ is the latent comparandum strength (mean fixed at 0 and variance at 1 to anchor location and scale)
+  \item $d_i$ is diagnostic $i$ (e.g., ArgHead, PossInterface from Section~\ref{subsec:diagnostic-battery})
+  \item $\alpha_i \sim \text{Normal}(0, 2)$ is diagnostic-specific difficulty
+  \item $\beta_i \sim \text{Normal}(0, 1)$ is diagnostic discrimination (how informative the test is)
+  \item $u_{\text{fam}} \sim \text{Normal}(0, \sigma_{\text{fam}})$ captures phylogenetic clustering via partial pooling
+  \item $v_{\text{coder}} \sim \text{Normal}(0, \sigma_{\text{coder}})$ captures systematic coder biases
+  \item $\sigma_{\text{fam}}, \sigma_{\text{coder}} \sim \text{Exponential}(1)$ are hierarchical standard deviations
+\end{itemize}
+
+Crucially, diagnostics never condition on forms $\phi$, ensuring $(F_{L,c,\phi} \perp d_{L,i} \mid \eta_{L,c})$ as required by anti-circularity (Rule~B in Figure~\ref{fig:dag}).
+
+Layer 2 captures realization evidence. Forms $F_{L,c,\phi,t}$ (indexed by tokens $t$) are observed conditional on latent comparandum strength:
+
+\begin{align}
+F_{L,c,\phi,t} &\sim \text{Bernoulli}(\rho_{L,c,\phi,t}) \\
+\text{logit}(\rho_{L,c,\phi,t}) &= \kappa_{L,c,\phi} + \lambda_{c,\phi} \eta_{L,c}
+\end{align}
+
+with monotonicity constraint $\lambda_{c,\phi} \geq 0$ (stronger comparanda can't decrease form probability). Priors:
+
+\begin{align}
+\kappa_{L,c,\phi} &\sim \text{Normal}(\mu_{\kappa}, 1.5) \\
+\lambda_{c,\phi} &\sim \text{HalfNormal}(0, 1)
+\end{align}
+
+where $\mu_{\kappa}$ is initialized from analyst provisional weights $w_L^{\text{prov}}$ via the logit transform.
+
+The weight function and false-positive rate are deterministic functions of structural parameters:
+
+\begin{align}
+w_L(c,\phi) &= \sigma(\kappa_{L,c,\phi} + \lambda_{c,\phi}) = \Pr(F_{L,c,\phi}=1 \mid \eta_{L,c}=1) \\
+q_L(c,\phi) &= \sigma(\kappa_{L,c,\phi}) = \Pr(F_{L,c,\phi}=1 \mid \eta_{L,c}=0)
+\end{align}
+
+where $\sigma$ is the logistic function. Operationally, $\eta=0$ corresponds to \textbf{diagnostic absence}: all Layer~1 diagnostics score below their minimal thresholds, indicating the comparandum is not active in that context. This makes $q_L$ empirically estimable from tokens where the comparandum is diagnosed as absent yet the form appears. Because $\kappa$ and $\lambda$ have priors, $w_L$ and $q_L$ inherit posterior distributions; the matrix $M_L$ stores $\mathbb{E}[w_L \mid \text{data}]$ with 80\% credible intervals.
+
+Four mechanisms ensure unique parameter estimation:
+\begin{enumerate}
+  \item \textbf{Location anchoring:} Fixing $\mathbb{E}[\eta]=0$ eliminates translation invariance between $\eta$ and $\kappa$ (shifting both by a constant would otherwise leave the likelihood unchanged)
+  \item \textbf{Scale anchoring:} Fixing $\text{Var}(\eta)=1$ breaks the $(k \cdot w_L, \eta/k)$ scaling symmetry
+  \item \textbf{Monotonicity:} The constraint $\lambda \geq 0$ prevents sign ambiguity
+  \item \textbf{Independent measurements:} Layers~1 and~2 provide conditionally independent evidence sources, yielding two equations for two latent quantities ($\eta$ and $\kappa$,$\lambda$)
+\end{enumerate}
+
+Any alternative parameterization would violate at least one constraint, ensuring the posterior is proper.
+
+The estimation workflow proceeds in four steps:
+\begin{enumerate}
+  \item Fit Layer~1 to obtain posterior draws of $\eta_{L,c}$ from diagnostic data alone
+  \item Condition on $\eta_{L,c}$ samples while fitting Layer~2, yielding joint posterior samples of $(\kappa, \lambda)$
+  \item Transform samples to $(w_L, q_L)$ and compute posterior summaries
+  \item Validate via posterior predictive checks: does the model generate diagnostic and form patterns consistent with observed data?
+\end{enumerate}
+
+This is a multilevel model because languages share evolutionary history. The phylogenetic random effect $u_{\text{fam}}$ implements partial pooling by genealogy, preventing spurious correlations from areal clustering. The latent comparandum strength $\eta_{L,c}$ is anchored at $\mathbb{E}[\eta]=0$ with $\text{Var}(\eta)=1$ to ensure both location and scale identifiability.
+
+The two-layer structure formalizes the paper's core methodological commitment. Level~I comparanda ($\eta$) are diagnosed \textit{first} from behavioral evidence alone (Layer~1), then Level~III realizations ($\kappa$, $\lambda$) are estimated \textit{conditional} on that diagnosis (Layer~2). This workflow embodies Rule~B: withhold candidate forms when diagnosing semantic targets.
+
+The same logic extends to other comparative concepts: \textsc{adjectivality}\textsubscript{\Cross} (modification, predication, gradability, comparison), \textsc{verbiness}\textsubscript{\Cross} (predicate-head privileges, tense-aspect-mood morphology, argument structure). Each gets its own diagnostic vector and measurement model. Semantic targets are tested independently (Section~\ref{sec:hygiene}) and linked to categories only via the observed mappings in the matrix $M_L$ (Rule~B).
+
+Naturalization candidates are evaluated against declared projectibility metrics (ROC-AUC for classifiers, macro-F1 for multi-class prediction) with thresholds that have to  hold in held-out test data before promotion. Failure to meet these thresholds triggers explicit failure modes: too thin, too fat, negative, or indeterminate. The framework thus builds measurement discipline into the theoretical machinery.
 
 \clearpage
 \printbibliography
