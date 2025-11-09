@@ -63,40 +63,6 @@ I propose a homeostatic framework that keeps the levels apart and makes the expl
 The framework issues risk-bearing predictions about trade-offs, regeneration pathways, and latent-variable diagnostics (e.g., \emph{nominality}) and is formalized in an auditable specification (\texttt{src/typology.py}). By demanding mechanisms as well as mappings, the account preserves the empirical ambition of typology while avoiding the universalist overreach that has long haunted the field.
 \end{abstract}
 
-\section{Orientation}\label{sec:orientation}
-Two requirements conflict: cross-linguistic comparison needs predicates that travel across grammars, while grammatical analysis needs kinds that are grammar-specific. From this tension, typology accumulates measurement error and fragile generalizations.
-
-I adopt a terminological discipline following \textcite{HuddlestonPullum2002}: \emph{function} (unqualified) denotes syntactic functions only; \emph{target} denotes semantic targets; \emph{role} denotes discourse/pragmatic roles; \emph{category} denotes syntactic categories. Subscripts distinguish comparative cross-linguistic concepts (\textsc{term}\textsubscript{\Cross}) from language-specific realizations (\textsc{term}\textsubscript{Eng}, \textsc{term}\textsubscript{Jpn}) and general language-internal references (\textsc{term}\textsubscript{$L$}) where no particular language is in focus.
-
-Following \textcite{Haspelmath2010}, I treat cross-language targets as \emph{comparative concepts}~-- analyst-constructed categories that allow comparison without assuming the categories exist in individual grammars. Building on \textcite{Croft2001,HuddlestonPullum2002}, I analyse language-internal lexical categories as homeostatic property cluster (HPC) kinds~-- categories that persist because mechanisms maintain clustered properties, not because they have essential defining features \parencite{Boyd1991Enthusiasm,Boyd1999Homeostasis,Khalidi2013}. I call these cross-linguistic targets \emph{comparanda}~-- the phenomena we compare across languages, distinct from language-specific realizations.
-
-The foundation: clear descriptions of language-internal syntactic categories and functions~-- English's noun, Japanese's relative clause, Hebrew's subject~-- with their full morphosyntactic property clusters. Cross-linguistic comparison then requires apparatus that permits asking whether English's noun and Japanese's noun realize similar patterns, without presupposing that English's cluster defines the universal or that cross-linguistic prototypes have to mirror any particular realization. Section~\ref{sec:failures} details how systematic conflation errors block this goal.
-
-
-Table~\ref{tab:levels} presents the three-level ontology that separates what we compare across languages from what exists in particular grammars.
-
-\begin{table}[ht]
-  \centering
-  \caption{Three-level ontology for comparative concepts and realizations}\label{tab:levels}
-  \begin{tabular}{p{3cm}p{6.2cm}p{5.5cm}}
-    \toprule
-    Level & Contents & Diagnostic focus \\
-    \midrule
-    Level-I: \hspace{1.5cm} cross-linguistic pressures & Semantic targets (\textsc{specificity}\textsubscript{\Cross}, \textsc{definiteness}\textsubscript{\Cross}, \textsc{mass/count}\textsubscript{\Cross}) and discourse roles (\textsc{topic}\textsubscript{\Cross}, \textsc{focus}\textsubscript{\Cross}, \textsc{vocative}\textsubscript{\Cross}) & Behavioural tests on interpretation, common ground management, and discourse continuity \\ \addlinespace[4pt]
-Level-II: \hspace{1.5cm} cross-linguistic syntax & Functions (\textsc{subject}\textsubscript{\Cross}, \textsc{head}\textsubscript{\Cross}, \textsc{predicate}\textsubscript{\Cross}) and categories (\textsc{V}\textsubscript{\Cross}, \textsc{VP}\textsubscript{\Cross}, \textsc{clause}\textsubscript{\Cross}) & Portable morphosyntactic diagnostics (alignment, extraction, agreement control, slot privileges) \\ \addlinespace[4pt]
-Level-III: language-internal syntax & Language-internal functions (\textsc{subject}\textsubscript{Eng}, \textsc{head}\textsubscript{Spn}, \textsc{predicate}\textsubscript{Tha}) and categories (\textsc{V}\textsubscript{Eng}, \textsc{VP}\textsubscript{Mndr}, \textsc{clause}\textsubscript{Hbr}) & Distributional, morphological, and prosodic evidence specific to $L$; mapped to Level~II with graded weights \\ \addlinespace[4pt]
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-Multiple levels may converge in a single expression. In [\textit{the cat}] \textit{awoke}, the bracketed NP instantiates \textsc{topic}\textsubscript{\Cross} (Level~I) and \textsc{subject}\textsubscript{\Cross} (Level~II) via the language-internal function \textsc{subject}\textsubscript{Eng} (Level~III).
-
-Levels~I and~III persist as homeostatic property-cluster kinds sustained by different mechanisms: cognitive–interactional pressures stabilize Level~I, while community-internal morphosyntax and diachrony sustain Level~III. Level-II comparanda, by contrast, are analyst-proposed comparative concepts. Some may earn \emph{naturalized} status (Section~\ref{subsec:naturalization-criteria}) and be treated (defeasibly) as kinds; others remain instrumental comparanda without ontological commitment.
-
-Three additions operationalize this framework: an executable three-level \emph{comparanda--realization} schema (Section~\ref{sec:matrix}) separating what we compare (categories\textsubscript{\Cross}, functions\textsubscript{\Cross}, targets\textsubscript{\Cross}, roles\textsubscript{\Cross}) from what exists in particular languages (language-specific category realizations); an explicit \emph{syntax--semantics firewall protocol} (Section~\ref{sec:hygiene}) testing semantic targets independently of their morphological or syntactic expression; and a measurement-first approach (Sections~\ref{sec:naturalized} and \ref{sec:measurement}) promoting some comparative concepts to \emph{naturalized} status when they show consistent cross-linguistic stability with identifiable homeostatic mechanisms.\footnote{A parallel object-oriented specification of these structures is maintained in \texttt{src/typology.py} to keep the theoretical machinery auditable.}
-
-The paper proceeds as follows. Section~\ref{sec:failures} diagnoses four recurrent conflation errors in current typological practice, showing how they manifest in published research. Section~\ref{sec:matrix} operationalizes the three-level mapping with formal apparatus (mapping functions, weight assignment, reliability scores). Section~\ref{sec:hygiene} extends the framework to semantic targets through a firewall protocol with operational diagnostics. Sections~\ref{sec:naturalized} and \ref{subsec:mechanisms} introduce naturalized comparative concepts and the homeostatic mechanisms that stabilize them, with a biological interlude (Section~\ref{sec:eyes}) illustrating character-identity mechanisms. Section~\ref{sec:measurement} develops measurement models using latent variables. Section~\ref{sec:predictions} derives five falsifiable predictions with declared thresholds. Section~\ref{sec:illustrations} applies the framework to three typological debates. Section~\ref{sec:threats} addresses objections about measurement feasibility, falsifiability, and circularity.
-
 \section{Where typology goes wrong}\label{sec:failures}
 Typology's systematic errors share a single source: we conflate what we compare with how languages realize it. Meanings become forms. Functions become categories. Measurement dissolves. The confusions run bidirectionally~-- language-internal categories project onto comparative functions and vice versa; property clusters of local realizations project onto comparative notions and vice versa~-- generating four recurrent obstacles.
 
@@ -134,6 +100,40 @@ Languages mark some objects but not others. Turkish adds accusative \textit{-i} 
 Projecting the presence of a morphosyntactic exponent (DOM) onto the semantic target itself generates undergeneralization: languages lacking DOM are diagnosed as lacking \textsc{specificity}\textsubscript{\Cross}, or specificity becomes a morphosyntactic property rather than a semantic one. \textsc{specificity}\textsubscript{\Cross} is a scopal and pragmatic target maintained by discourse mechanisms~-- reference tracking, common ground updates, individuation~-- that need to  be diagnosed independently through behavioural tests: Does the referent maintain wide scope over intensional operators? Does it remain accessible for subsequent anaphora? Is it interpreted as speaker-anchored? \parencite{Enc1991,Heusinger2011}. DOM improves \textit{detectability} of \textsc{specificity}\textsubscript{\Cross} by providing a morphological cue while being neither necessary nor sufficient: languages without DOM still show specificity effects in scope interactions and discourse continuity; languages with DOM sometimes deploy it for definiteness, animacy, or topicality rather than specificity per se.
 
 \end{exe}
+
+\section{Orientation}\label{sec:orientation}
+Two requirements conflict: cross-linguistic comparison needs predicates that travel across grammars, while grammatical analysis needs kinds that are grammar-specific. From this tension, typology accumulates measurement error and fragile generalizations.
+
+I adopt a terminological discipline following \textcite{HuddlestonPullum2002}: \emph{function} (unqualified) denotes syntactic functions only; \emph{target} denotes semantic targets; \emph{role} denotes discourse/pragmatic roles; \emph{category} denotes syntactic categories. Subscripts distinguish comparative cross-linguistic concepts (\textsc{term}\textsubscript{\Cross}) from language-specific realizations (\textsc{term}\textsubscript{Eng}, \textsc{term}\textsubscript{Jpn}) and general language-internal references (\textsc{term}\textsubscript{$L$}) where no particular language is in focus.
+
+Following \textcite{Haspelmath2010}, I treat cross-language targets as \emph{comparative concepts}~-- analyst-constructed categories that allow comparison without assuming the categories exist in individual grammars. Building on \textcite{Croft2001,HuddlestonPullum2002}, I analyse language-internal lexical categories as homeostatic property cluster (HPC) kinds~-- categories that persist because mechanisms maintain clustered properties, not because they have essential defining features \parencite{Boyd1991Enthusiasm,Boyd1999Homeostasis,Khalidi2013}. I call these cross-linguistic targets \emph{comparanda}~-- the phenomena we compare across languages, distinct from language-specific realizations.
+
+The foundation: clear descriptions of language-internal syntactic categories and functions~-- English's noun, Japanese's relative clause, Hebrew's subject~-- with their full morphosyntactic property clusters. Cross-linguistic comparison then requires apparatus that permits asking whether English's noun and Japanese's noun realize similar patterns, without presupposing that English's cluster defines the universal or that cross-linguistic prototypes have to mirror any particular realization. Section~\ref{sec:failures} details how systematic conflation errors block this goal.
+
+
+Table~\ref{tab:levels} presents the three-level ontology that separates what we compare across languages from what exists in particular grammars.
+
+\begin{table}[ht]
+  \centering
+  \caption{Three-level ontology for comparative concepts and realizations}\label{tab:levels}
+  \begin{tabular}{p{3cm}p{6.2cm}p{5.5cm}}
+    \toprule
+    Level & Contents & Diagnostic focus \\
+    \midrule
+    Level-I: \hspace{1.5cm} cross-linguistic pressures & Semantic targets (\textsc{specificity}\textsubscript{\Cross}, \textsc{definiteness}\textsubscript{\Cross}, \textsc{mass/count}\textsubscript{\Cross}) and discourse roles (\textsc{topic}\textsubscript{\Cross}, \textsc{focus}\textsubscript{\Cross}, \textsc{vocative}\textsubscript{\Cross}) & Behavioural tests on interpretation, common ground management, and discourse continuity \\ \addlinespace[4pt]
+Level-II: \hspace{1.5cm} cross-linguistic syntax & Functions (\textsc{subject}\textsubscript{\Cross}, \textsc{head}\textsubscript{\Cross}, \textsc{predicate}\textsubscript{\Cross}) and categories (\textsc{V}\textsubscript{\Cross}, \textsc{VP}\textsubscript{\Cross}, \textsc{clause}\textsubscript{\Cross}) & Portable morphosyntactic diagnostics (alignment, extraction, agreement control, slot privileges) \\ \addlinespace[4pt]
+Level-III: language-internal syntax & Language-internal functions (\textsc{subject}\textsubscript{Eng}, \textsc{head}\textsubscript{Spn}, \textsc{predicate}\textsubscript{Tha}) and categories (\textsc{V}\textsubscript{Eng}, \textsc{VP}\textsubscript{Mndr}, \textsc{clause}\textsubscript{Hbr}) & Distributional, morphological, and prosodic evidence specific to $L$; mapped to Level~II with graded weights \\ \addlinespace[4pt]
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Multiple levels may converge in a single expression. In [\textit{the cat}] \textit{awoke}, the bracketed NP instantiates \textsc{topic}\textsubscript{\Cross} (Level~I) and \textsc{subject}\textsubscript{\Cross} (Level~II) via the language-internal function \textsc{subject}\textsubscript{Eng} (Level~III).
+
+Levels~I and~III persist as homeostatic property-cluster kinds sustained by different mechanisms: cognitive–interactional pressures stabilize Level~I, while community-internal morphosyntax and diachrony sustain Level~III. Level-II comparanda, by contrast, are analyst-proposed comparative concepts. Some may earn \emph{naturalized} status (Section~\ref{subsec:naturalization-criteria}) and be treated (defeasibly) as kinds; others remain instrumental comparanda without ontological commitment.
+
+Three additions operationalize this framework: an executable three-level \emph{comparanda--realization} schema (Section~\ref{sec:matrix}) separating what we compare (categories\textsubscript{\Cross}, functions\textsubscript{\Cross}, targets\textsubscript{\Cross}, roles\textsubscript{\Cross}) from what exists in particular languages (language-specific category realizations); an explicit \emph{syntax--semantics firewall protocol} (Section~\ref{sec:hygiene}) testing semantic targets independently of their morphological or syntactic expression; and a measurement-first approach (Sections~\ref{sec:naturalized} and \ref{sec:measurement}) promoting some comparative concepts to \emph{naturalized} status when they show consistent cross-linguistic stability with identifiable homeostatic mechanisms.\footnote{A parallel object-oriented specification of these structures is maintained in \texttt{src/typology.py} to keep the theoretical machinery auditable.}
+
+The paper proceeds as follows. Section~\ref{sec:failures} diagnoses four recurrent conflation errors in current typological practice, showing how they manifest in published research. Section~\ref{sec:matrix} operationalizes the three-level mapping with formal apparatus (mapping functions, weight assignment, reliability scores). Section~\ref{sec:hygiene} extends the framework to semantic targets through a firewall protocol with operational diagnostics. Sections~\ref{sec:naturalized} and \ref{subsec:mechanisms} introduce naturalized comparative concepts and the homeostatic mechanisms that stabilize them, with a biological interlude (Section~\ref{sec:eyes}) illustrating character-identity mechanisms. Section~\ref{sec:measurement} develops measurement models using latent variables. Section~\ref{sec:predictions} derives five falsifiable predictions with declared thresholds. Section~\ref{sec:illustrations} applies the framework to three typological debates. Section~\ref{sec:threats} addresses objections about measurement feasibility, falsifiability, and circularity.
 
 \section{Three-level framework and mapping}\label{sec:matrix}
 The three-level ontology becomes operational through explicit apparatus: mapping functions specify which language-specific forms realize which cross-linguistic comparanda, weight functions quantify the strength of these mappings, reliability scores track coding confidence. Two explicit guardrails (Rules A--B) prevent the category--function conflation and template-import errors diagnosed above.
