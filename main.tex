@@ -638,11 +638,28 @@ The framework is explicitly \emph{anti-essentialist}: categories persist because
 \textbf{Reply:} The two-layer model achieves identifiability \textit{without} simplex constraints. Variance anchoring ($\text{Var}(\eta)=1$) and monotonicity ($\lambda \geq 0$) fix the scale, allowing multiple forms to simultaneously achieve $w_L \approx 1.0$. For example, English pronouns and proper names can both be near-canonical exponents of \textsc{definiteness}\textsubscript{\Cross} ($w \approx 0.98$, $w \approx 0.96$) without forced trade-offs. The false-positive rate $q_L(c,\phi)$ distinguishes high-precision exponents from ambiguous forms, providing richer characterization than normalized weights. This preserves HPC's theoretical commitment to clustered, partially redundant mechanisms while enabling rigorous statistical inference.
 
 \section{Conclusion}\label{sec:conclusion}
-The framework builds on three commitments: comparanda discipline (explicit mappings $M_L(c,\phi)$ separating cross-linguistic functions from language-internal categories); semantics firewall (testing meanings independently of morphosyntactic forms via behavioural diagnostics); and measurement accountability (latent variable models with declared performance thresholds, making naturalization empirically defeasible).
 
-The framework treats language-internal categories as genuine homeostatic property clusters: community-specific kinds maintained by cognitive, social, material, and diachronic mechanisms. A few comparative concepts~-- \textsc{noun} foremost among them~-- may qualify as \emph{naturalized}: weak HPCs sustained by recurrent but independent mechanisms across unrelated languages. These aren't universals (they're gradient, defeasible, and maintained by convergent evolution rather than shared essences), but they're not arbitrary analyst constructs either. The evidence for naturalization comes from the predictions in Section~\ref{sec:predictions}: trade-offs, regeneration pathways, compensatory elaboration, and decoupling of semantics from morphology.
+Conflating comparanda with realizations generates spurious universals, masks functional persistence, and mischaracterizes variation. The errors are systematic, not accidental.
 
-The result is a typology with fewer spurious universals, clearer explanations grounded in specifiable mechanisms, and replicable paths from description to prediction. The three-level mapping, the firewall protocol, and the measurement models provide an implementation blueprint; the formal specification in \texttt{src/typology.py} offers an auditable encoding of the theoretical commitments. What remains is empirical work: coding languages, testing predictions, refining diagnostics, and discovering which comparative concepts earn naturalized status and which dissolve under scrutiny.
+The framework builds on three commitments: comparanda discipline (explicit mappings $M_L(c,\phi)$ separating cross-linguistic functions from language-internal categories), diagnostic independence (testing meanings via behavioral evidence before examining morphosyntactic forms), and measurement accountability (latent variable models with declared thresholds, making naturalization empirically defeasible).
+
+The question is not whether this framework is convenient---it isn't. The question is whether we are willing to measure what we claim to compare. Octopuses and humans share camera eyes not because evolution mandates them, but because light detection requires convergent solutions. Typology's task is to identify which linguistic categories reflect similar convergence---and which are merely inherited descriptive templates.
+
+\subsection{Three pilot studies}
+
+The framework is empirically tractable. Three studies can test its core predictions within 18 months:
+
+\begin{enumerate}
+\item \textbf{Regeneration pathways (12 languages, 6 families):} Test whether languages with robust classifier systems favor demonstrative→article pathways while languages with strong possessive morphology favor genitive→article pathways. Success criterion: macro-F1 $\geq 0.75$ on held-out families.
+
+\item \textbf{Mechanism competition (oral vs. literate traditions, 30 languages):} Test whether oral traditions show faster regeneration but faster erosion compared to literate traditions. Success criterion: hazard ratio $>2.0$ for regeneration, $<0.5$ for erosion.
+
+\item \textbf{Adjective naturalization test (50 languages, 10 families):} Code \textsc{modifier}\textsubscript{\Cross} realizations and test projectibility. Success criterion: ROC-AUC $\geq 0.70$ on held-out families, or explicit demotion to \enquote{too thin} status with documented failure mode.
+\end{enumerate}
+
+These pilots require coordination: fieldworkers for diagnostic protocols, corpus linguists for historical pathways, statisticians for hierarchical models. The theory provides the target. Implementation requires sustained collaboration.
+
+Typology stands at a choice point. Continue conflating levels, and universals will keep dissolving. Separate comparanda from realizations, enforce diagnostic independence, and demand measurement accountability---and we transform typology from a label-based enterprise into a measurement science.
 
 \clearpage
 
