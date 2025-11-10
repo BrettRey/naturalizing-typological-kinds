@@ -270,11 +270,9 @@ Defining Level-I comparanda as comparative concepts with operational diagnostics
 \draw[arrow] (step3) -- (step4);
 \draw[arrow] (step4) -- (step5);
 
-% Firewall annotation
-\draw[dashed, red, thick] ([xshift=-2.5cm]step2.west) -- ([xshift=2.5cm]step2.east);
-\draw[dashed, red, thick] ([xshift=-2.5cm]step3.west) -- ([xshift=2.5cm]step3.east);
-\node[right=0.5cm of step2.east, text=red] {FIREWALL};
-\node[right=0.5cm of step3.east, text=red] {FIREWALL};
+% Firewall annotation - positioned between steps 2 and 3
+\draw[dashed, red, ultra thick] ([xshift=-2.5cm,yshift=-0.75cm]step2.south west) -- ([xshift=2.5cm,yshift=-0.75cm]step2.south east);
+\node[right=0.5cm of step2.south east, yshift=-0.75cm, text=red, font=\bfseries] {FIREWALL};
 
 \end{tikzpicture}
 \caption{Anti-circularity workflow: diagnose the target (steps 1--2) before examining forms (steps 3--5). The firewall between steps 2 and 3 enforces independence.}
