@@ -56,7 +56,7 @@
 
 
 \begin{abstract}
-Why do typological universals keep dissolving? Because we measure the wrong things. We count articles and call it definiteness. We track nominative case and call it subjecthood. We confuse what we compare with how languages realize it, and the universals evaporate. When English \textsc{noun}\textsubscript{Eng} or Hebrew \textsc{subject}\textsubscript{Heb} is projected directly onto a purportedly universal \textsc{noun}\textsubscript{\Cross}, measurement error and spurious asymmetries accumulate.
+Typological universals keep dissolving because we conflate what we compare with how languages realize it. We count articles and call it definiteness. We track nominative case and call it subjecthood. When English nouns or Hebrew subjects are projected directly onto purportedly universal categories, measurement error and spurious asymmetries accumulate. The confusion runs both ways: language-internal categories masquerade as cross-linguistic functions, and comparative concepts inherit the parochial structure of particular languages.
 
 I propose a homeostatic framework that keeps the levels apart and makes the explanatory work accountable. First, a three-tier \emph{comparanda--realization} mapping separates cross-linguistic functions, semantic targets, discourse roles, and categories from their language-specific realizations. Second, a \emph{syntax--semantics firewall} separates diagnostic evidence from morphosyntactic form, ensuring that comparative concepts travel without dragging language-particular packaging. Third, some comparanda earn promotion to \emph{naturalized comparative concepts} when convergent cognitive, discourse, diachronic, or community mechanisms maintain their property clusters; others are tagged with explicit failure modes.
 
@@ -256,7 +256,8 @@ Defining Level-I comparanda as comparative concepts with operational diagnostics
 \begin{tikzpicture}[
   node distance=1.5cm,
   box/.style={rectangle, draw=black, thick, minimum width=4cm, minimum height=1cm, align=center},
-  arrow/.style={->, thick}
+  arrow/.style={->, thick},
+  remember picture
 ]
 
 \node[box] (step1) {1. Establish diagnostic traction};
@@ -270,9 +271,9 @@ Defining Level-I comparanda as comparative concepts with operational diagnostics
 \draw[arrow] (step3) -- (step4);
 \draw[arrow] (step4) -- (step5);
 
-% Firewall annotation - positioned between steps 2 and 3
-\draw[dashed, red, ultra thick] ([xshift=-2.5cm,yshift=-0.75cm]step2.south west) -- ([xshift=2.5cm,yshift=-0.75cm]step2.south east);
-\node[right=0.5cm of step2.south east, yshift=-0.75cm, text=red, font=\bfseries] {FIREWALL};
+% Firewall annotation - positioned midway between steps 2 and 3
+\draw[dashed, red, ultra thick] ([xshift=-2.5cm]$(step2.south)!0.5!(step3.north)$) -- ([xshift=2.5cm]$(step2.south)!0.5!(step3.north)$);
+\node[text=red, font=\bfseries] at ([xshift=3.2cm]$(step2.south)!0.5!(step3.north)$) {FIREWALL};
 
 \end{tikzpicture}
 \caption{Anti-circularity workflow: diagnose the target (steps 1--2) before examining forms (steps 3--5). The firewall between steps 2 and 3 enforces independence.}
