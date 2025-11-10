@@ -192,7 +192,7 @@ The weight function $w_L$ requires explicit decision procedures to avoid analyst
 Provisional weights initialize the measurement model's priors on realization parameters $\kappa_{L,c,\phi}$ and $\lambda_{c,\phi}$ (Section~\ref{sec:measurement}). Final weights $w_L(c,\phi)$ are posterior-derived conditional probabilities with uncertainty quantification. Inter-coder agreement (Cohen's $\kappa > 0.7$) validates provisional assignments.
 \end{description}
 
-The weight function has a precise interpretation that ensures identifiability. Specifically, $w_L(c,\phi)$ measures the conditional probability that form $\phi$ is selected when comparandum $c$ is at maximum strength: $w_L(c,\phi) = \Pr(F_{L,c,\phi}=1 \mid \eta_{L,c}=1)$. An auxiliary quantity $q_L(c,\phi) = \Pr(F_{L,c,\phi}=1 \mid \eta_{L,c}=0)$ captures false-positive rates (form appears when comparandum is absent). This two-parameter characterization preserves the HPC intuition that multiple forms can independently realize the same comparandum with high weights simultaneously---there is no sum-to-1 constraint forcing competition. Identifiability is ensured by anchoring the latent scale (fixing $\text{Var}(\eta)=1$ and $\mathbb{E}[\eta]=0$), enforcing monotonicity ($\lambda_{c,\phi} \geq 0$), and separating diagnostic evidence (Level~I) from realization evidence (Level~III). The two-layer measurement model (Section~\ref{sec:measurement}) estimates $w_L$ as a derived quantity from structural parameters $\kappa$ and $\lambda$, avoiding circularity by ensuring diagnostics never condition on Level~III forms.
+The weight function has a precise interpretation that ensures identifiability. Specifically, $w_L(c,\phi)$ measures the probability that form $\phi$ is realized when comparandum $c$ is at maximum standard strength ($\eta_{L,c}=+1$). An auxiliary quantity $q_L(c,\phi)$ captures the baseline probability when the comparandum is absent ($\eta_{L,c}=0$)---the false-positive rate. This two-parameter characterization preserves the HPC intuition that multiple forms can independently realize the same comparandum with high weights simultaneously---there is no sum-to-1 constraint forcing competition. Identifiability is ensured by anchoring the latent scale (fixing $\text{Var}(\eta)=1$ and $\mathbb{E}[\eta]=0$), enforcing monotonicity ($\lambda_{c,\phi} \geq 0$), and separating diagnostic evidence (Level~I) from realization evidence (Level~III). The two-layer measurement model (Section~\ref{sec:measurement}) estimates $w_L$ as a derived quantity from structural parameters $\kappa$ and $\lambda$, avoiding circularity by ensuring diagnostics never condition on Level~III forms.
 
 In practice, implementations should use \textbf{triangulation}: start with analyst weights for pilot coding, validate against corpus-based observational weights where available, then refine via measurement model estimation. When analyst provisional weights and model posteriors conflict, use a \textbf{precision-weighted compromise}:
 \[
@@ -335,7 +335,7 @@ For each Level~I comparandum $c$ (semantic target or discourse role) and each la
 These diagnostics function as checklists, not proxies for grammatical exponents. The full codebook (excerpt in Section~\ref{sec:codebook}) provides complete specifications.
 
 \begin{figure}[ht]
- \centering \label{fig:dag}
+ \centering
  \begin{tikzpicture}[node distance=2.0cm and 4cm]
  
  \tikzset{
@@ -414,7 +414,7 @@ These diagnostics function as checklists, not proxies for grammatical exponents.
  
  \end{tikzpicture}
  \caption{Two-layer hierarchical model. \textbf{Layer 1}: diagnostic items $d_{L,i}$ modeled via latent strength $\eta_{L,c}$ with coefficient $\beta_i$, intercept $\alpha_i$, and random effects $(u_{\text{fam}}, v_{\text{coder}})$ and measurement error $\varepsilon_i$. \textbf{Layer 2}: observed forms $F_{L,c,\phi,t}$ modeled via form parameters $(\kappa_{L,c,\phi}, \lambda_{c,\phi})$ and measurement error $\varepsilon_F$. Derived quantities $w_L, q_L$ are deterministic functions of Layer~2 parameters. Hyperpriors: $\sigma_{\text{fam}},\sigma_{\text{coder}}\sim\text{Exp}(1)$. Identifiability: $\mathbb{E}[\eta]=0$, $\text{Var}(\eta)=1$, $\lambda_{c,\phi}\geq 0$. Anti-circularity: $F \perp d \mid \eta$.}
- \label{fig:two_layer_model}
+ \label{fig:dag}
  \end{figure}
 
 An illustrative failure case shows what happens when the firewall is violated and how the naturalization tests bite. The slogan \enquote{feminine personal names end in /a/} collapses comparandum and exponent: it bundles the Level I target (feminine personal name) with a specific phonological realization (final /a/), leaning on Latin orthography to make the pattern look universal.
@@ -757,11 +757,11 @@ with monotonicity constraint $\lambda_{c,\phi} \geq 0$ (stronger comparanda can'
 
 where $\mu_{\kappa}$ is initialized from analyst provisional weights $w_L^{\text{prov}}$ via the logit transform.
 
-The weight function and false-positive rate are deterministic functions of structural parameters:
+The weight function and false-positive rate are deterministic functions of structural parameters, evaluated at reference points on the latent scale:
 
 \begin{align}
-w_L(c,\phi) &= \sigma(\kappa_{L,c,\phi} + \lambda_{c,\phi}) = \Pr(F_{L,c,\phi}=1 \mid \eta_{L,c}=1) \\
-q_L(c,\phi) &= \sigma(\kappa_{L,c,\phi}) = \Pr(F_{L,c,\phi}=1 \mid \eta_{L,c}=0)
+w_L(c,\phi) &= \sigma(\kappa_{L,c,\phi} + \lambda_{c,\phi}) \quad \text{(probability when $\eta_{L,c}=+1$)} \\
+q_L(c,\phi) &= \sigma(\kappa_{L,c,\phi}) \quad \text{(probability when $\eta_{L,c}=0$)}
 \end{align}
 
 where $\sigma$ is the logistic function. Operationally, $\eta=0$ corresponds to \textbf{diagnostic absence}: all Layer~1 diagnostics score below their minimal thresholds, indicating the comparandum is not active in that context. This makes $q_L$ empirically estimable from tokens where the comparandum is diagnosed as absent yet the form appears. Because $\kappa$ and $\lambda$ have priors, $w_L$ and $q_L$ inherit posterior distributions; the matrix $M_L$ stores $\mathbb{E}[w_L \mid \text{data}]$ with 80\% credible intervals.
