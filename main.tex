@@ -633,9 +633,9 @@ Literate traditions introduce additional stabilizers~-- orthographic standards, 
 \section{Worked illustrations}\label{sec:illustrations}
 The recurring claim that some languages lack adjectives is traditionally treated as evidence against universal lexical categories: if Language X lacks an adjective category, it has to lack the property-modification function entirely, therefore adjectives aren't universal and typological variation is radical.
 
-The present framework dissolves this debate by separating levels. We distinguish the \textsc{modifier}\textsubscript{\Cross} function from the \textsc{adjective}\textsubscript{$L$} category, then populate $M_L(\textsc{modifier}\textsubscript{\Cross}, k)$ for the language in question. A typical profile might show: Relative clause constructions (1.0), Property nouns (0.7), Stative verbs in attributive frames (0.5), \textsc{adjective}\textsubscript{$L$} category (0). The \textsc{modifier}\textsubscript{\Cross} function is realized; the \textsc{adjective}\textsubscript{$L$} category is absent.
+The present framework dissolves this debate by separating levels. We distinguish the \textsc{modifier}\textsubscript{\Cross} function from language-internal adjective categories, then populate $M_L(\textsc{modifier}\textsubscript{\Cross}, k)$ for the language in question. A typical profile might show: Relative clause constructions (1.0), Property nouns (0.7), Stative verbs in attributive frames (0.5), Dedicated adjective class (0). The \textsc{modifier}\textsubscript{\Cross} function is realized; there is no dedicated $L$-internal class specialized for that function.
 
-The framework generates a testable prediction: languages lacking a dedicated \textsc{adjective}\textsubscript{$L$} category should exhibit compensatory elaboration~-- more complex relative-clause syntax, richer nominal modification paradigms, or increased use of stative predicates in attributive position \parencite{Dixon2010,Croft2001}.
+The framework generates a testable prediction: in languages where there is no dedicated $L$-internal class specialized for the property-concept modifier function, that function should be realized via compensatory elaboration~-- more complex relative-clause syntax, richer nominal modification paradigms, or increased use of stative predicates in attributive position \parencite{Dixon2010,Croft2001}.
 
 Instead of a universal-vs-variation debate about adjectives, we predict the \emph{profile} of modification strategies. Cross-linguistic comparison proceeds by function (row-wise: how is \textsc{modifier}\textsubscript{\Cross} realized?), while language-internal analysis tracks categories (column-wise: which comparanda does this category realize?). Apparent counterexamples to universals become expected patterns once levels are distinguished.
 
@@ -790,6 +790,9 @@ The two-layer structure formalizes the paper's core methodological commitment. L
 The same logic extends to other comparative concepts: \textsc{adjectivality}\textsubscript{\Cross} (modification, predication, gradability, comparison), \textsc{verbiness}\textsubscript{\Cross} (predicate-head privileges, tense-aspect-mood morphology, argument structure). Each gets its own diagnostic vector and measurement model. Semantic targets are tested independently (Section~\ref{sec:firewall}) and linked to categories only via the observed mappings in the matrix $M_L$ (Rule~B).
 
 Naturalization candidates are evaluated against declared projectibility metrics (ROC-AUC for classifiers, macro-F1 for multi-class prediction) with thresholds that have to  hold in held-out test data before promotion. Failure to meet these thresholds triggers explicit failure modes: too thin, too fat, negative, or indeterminate. The framework thus builds measurement discipline into the theoretical machinery.
+
+\section*{Acknowledgements}
+I'm grateful to Martin Haspelmath for detailed comments on an earlier draft. His identification of a notational slip in the worked illustrations—where I inadvertently treated the absence of language-internal categories as if it were a cross-linguistic generalization—led to important clarifications throughout Section~\ref{sec:illustrations}. All remaining errors are my own.
 
 \clearpage
 \printbibliography

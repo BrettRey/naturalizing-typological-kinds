@@ -1,0 +1,146 @@
+\documentclass[border=10pt]{standalone}
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,calc}
+
+\begin{document}
+
+\tikzset{
+  % Observed variables (filled circles)
+  obs/.style={circle, draw=black, fill=gray!30, thick, minimum size=9mm, font=\small},
+  % Latent variables (unfilled circles)
+  latent/.style={circle, draw=black, fill=white, thick, minimum size=9mm, font=\small},
+  % Parameters (rectangles)
+  param/.style={rectangle, draw=black, fill=blue!10, thick, minimum size=7mm, font=\scriptsize},
+  % Hyperparameters (rounded rectangles)
+  hyperparam/.style={rectangle, rounded corners, draw=black, fill=green!10, thick, minimum size=6mm, font=\scriptsize},
+  % Derived quantities (diamonds)
+  derived/.style={diamond, draw=black, fill=yellow!20, thick, minimum size=10mm, font=\scriptsize, aspect=1.8},
+  % Arrows
+  arrow/.style={->, >=stealth, thick},
+  % Plates
+  plate/.style={draw=black, dashed, thick, rounded corners, inner sep=10pt},
+  % Labels
+  platelabel/.style={anchor=south east, font=\scriptsize\itshape}
+}
+
+\begin{tikzpicture}[node distance=1.8cm and 2.5cm]
+
+% ===== LAYER 1: DIAGNOSTIC EVIDENCE =====
+
+% Hyperparameters for Layer 1
+\node[hyperparam] (sigma_fam) at (0,5) {$\sigma_{\text{fam}}$};
+\node[hyperparam] (sigma_coder) at (2.2,5) {$\sigma_{\text{coder}}$};
+
+% Random effects
+\node[param, below=0.9cm of sigma_fam] (u_fam) {$u_{\text{fam}}$};
+\node[param, below=0.9cm of sigma_coder] (v_coder) {$v_{\text{coder}}$};
+
+% Latent comparandum strength (centered for Layer 1)
+\node[latent] (eta) at (6,2.5) {$\eta_{L,c}$};
+
+% Diagnostic-specific parameters
+\node[param, left=2.2cm of eta] (alpha) {$\alpha_i$};
+\node[param, above=0.6cm of alpha] (beta) {$\beta_i$};
+
+% Observed diagnostic
+\node[obs, below=1.8cm of eta] (d) {$d_{L,i}$};
+
+% Arrows for Layer 1
+\draw[arrow] (sigma_fam) -> (u_fam);
+\draw[arrow] (sigma_coder) -> (v_coder);
+\draw[arrow] (eta) -> (d);
+\draw[arrow] (alpha) -> (d);
+\draw[arrow] (beta) -> (d);
+\draw[arrow] (u_fam) to[out=270,in=150] (d);
+\draw[arrow] (v_coder) to[out=270,in=100] (d);
+
+% Plate for diagnostics i
+\begin{scope}[on background layer]
+\node[plate, fit=(alpha) (beta) (d), label={[platelabel]south east:$i \in \{1,\ldots,I\}$}] (plate_diag) {};
+\end{scope}
+
+% ===== LAYER 2: REALIZATION EVIDENCE =====
+
+% Parameters for Layer 2
+\node[param, right=4cm of eta] (kappa) {$\kappa_{L,c,\phi}$};
+\node[param, above=0.6cm of kappa] (lambda) {$\lambda_{c,\phi}$};
+
+% Observed form
+\node[obs, below=1.8cm of kappa] (F) {$F_{L,c,\phi,t}$};
+
+% Arrows for Layer 2
+\draw[arrow] (eta) -> (F);
+\draw[arrow] (kappa) -> (F);
+\draw[arrow] (lambda) -> (F);
+
+% Plate for forms φ and tokens t
+\begin{scope}[on background layer]
+\node[plate, fit=(kappa) (lambda) (F), label={[platelabel]south east:$\phi \in \Phi_c$}] (plate_forms) {};
+\end{scope}
+
+% ===== DERIVED QUANTITIES =====
+
+% Position derived quantities below Layer 2
+\node[derived, below=1.5cm of F] (w_L) {$w_L$};
+\node[derived, right=1cm of w_L] (q_L) {$q_L$};
+
+% Arrows showing derivation (dashed to show they're derived, not causal)
+\draw[arrow, dashed, gray] (kappa) to[out=270,in=120] (w_L);
+\draw[arrow, dashed, gray] (lambda) to[out=270,in=60] (w_L);
+\draw[arrow, dashed, gray] (kappa) to[out=280,in=150] (q_L);
+
+% ===== ANNOTATIONS =====
+
+% Layer labels (positioned above the structures)
+\node[anchor=north, font=\bfseries\small] at (3, 5.8) {Layer 1: Diagnostic Evidence};
+\node[anchor=north, font=\bfseries\small] at (10.5, 5.8) {Layer 2: Realization Evidence};
+
+% Prior distributions (positioned near their respective layers)
+\node[font=\scriptsize, align=left, text width=3.8cm, draw=black!30, fill=black!5, rounded corners]
+  at (0.5, 1.2) {
+  \textbf{Priors (Layer 1):}\\
+  $\eta \sim N(0,1)$\\
+  $\alpha_i \sim N(0,2)$\\
+  $\beta_i \sim N(0,1)$\\
+  $u_{\text{fam}} \sim N(0,\sigma_{\text{fam}})$\\
+  $v_{\text{coder}} \sim N(0,\sigma_{\text{coder}})$\\
+  $\sigma_{\text{fam}}, \sigma_{\text{coder}} \sim \text{Exp}(1)$
+};
+
+\node[font=\scriptsize, align=left, text width=3.8cm, draw=black!30, fill=black!5, rounded corners]
+  at (13.8, 2.5) {
+  \textbf{Priors (Layer 2):}\\
+  $\kappa \sim N(\mu_\kappa, 1.5)$\\
+  $\lambda \sim \text{HalfN}(0,1)$
+};
+
+% Independence condition (bottom left)
+\node[draw=red!70, thick, rounded corners, fill=red!8, text width=4.2cm, font=\scriptsize, align=center]
+  at (3, -2) {
+  \textbf{Anti-circularity:}\\[2pt]
+  $F_{L,c,\phi} \perp d_{L,i} \mid \eta_{L,c}$\\[2pt]
+  (No direct path $d \to F$)
+};
+
+% Identifiability constraints (bottom center-right)
+\node[draw=blue!70, thick, rounded corners, fill=blue!8, text width=3.8cm, font=\scriptsize, align=left]
+  at (8.5, -2) {
+  \textbf{Identifiability:}\\[2pt]
+  $\bullet$ Location: $\mathbb{E}[\eta]=0$\\
+  $\bullet$ Scale: $\text{Var}(\eta)=1$\\
+  $\bullet$ Monotonicity: $\lambda \geq 0$\\
+  $\bullet$ Two independent layers
+};
+
+% Derived weights formulas (bottom right)
+\node[font=\scriptsize, align=left, text width=3.5cm, draw=black!30, fill=yellow!10, rounded corners]
+  at (13.5, -2) {
+  \textbf{Derived quantities:}\\[2pt]
+  $w_L(c,\phi) = \sigma(\kappa + \lambda)$\\
+  $q_L(c,\phi) = \sigma(\kappa)$
+};
+
+\end{tikzpicture}
+
+\end{document}
