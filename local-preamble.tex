@@ -1,0 +1,30 @@
+% local-preamble.tex - Project-specific overrides for Naturalizing Typological Kinds
+%
+% This file is loaded after the shared house-style preamble.
+
+\hypersetup{
+  pdftitle={Naturalizing Typological Kinds: Comparanda, Mechanisms, and Measurement},
+}
+
+% Fix headheight for fancyhdr from the shared preamble.
+\setlength{\headheight}{14pt}
+
+% Figures and formal diagrams used in the paper.
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,fit,backgrounds,calc}
+
+% Tables.
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+% APA language mapping for British documents.
+\DeclareLanguageMapping{british}{british-apa}
+
+% Subscript notation macros for comparanda.
+\newcommand{\Eng}{Eng}
+\newcommand{\Jpn}{Jpn}
+\newcommand{\Spn}{Spn}
+\newcommand{\Tha}{Tha}
+\newcommand{\Rus}{Rus}
+\newcommand{\Lat}{Lat}
+\newcommand{\Hbr}{Hbr}
+\newcommand{\Lgr}{$L$}
