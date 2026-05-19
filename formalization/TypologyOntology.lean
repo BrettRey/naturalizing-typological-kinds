@@ -58,11 +58,53 @@ def Comparandum.sort : Comparandum -> String
   | .levelII _ => "Level-II comparandum"
   | .profile _ => "decomposed profile"
 
+def DecomposedProfile.hasComponents (p : DecomposedProfile) : Prop :=
+  Not (p.levelIComponents = []) \/ Not (p.levelIIComponents = [])
+
+def Comparandum.wellFormed : Comparandum -> Prop
+  | .levelI _ => True
+  | .levelII _ => True
+  | .profile p => p.hasComponents
+
+inductive DiagnosticSource where
+  | behavioural
+  | discourse
+  | morphosyntactic
+  | componentProfile
+deriving DecidableEq, Repr
+
+def DiagnosticSource.allowedFor :
+    DiagnosticSource -> Comparandum -> Prop
+  | .behavioural, .levelI _ => True
+  | .discourse, .levelI _ => True
+  | .morphosyntactic, .levelII _ => True
+  | .componentProfile, .profile _ => True
+  | _, _ => False
+
+structure DiagnosticItem (c : Comparandum) where
+  source : DiagnosticSource
+  label : String
+  allowed : source.allowedFor c
+
+structure DiagnosticBattery (c : Comparandum) where
+  items : List (DiagnosticItem c)
+  nonempty : Not (items = [])
+
+theorem no_morphosyntactic_diagnostic_for_levelI
+    (c : LevelIComparandum) :
+    Not (DiagnosticSource.morphosyntactic.allowedFor (.levelI c)) := by
+  simp [DiagnosticSource.allowedFor]
+
+theorem no_behavioural_diagnostic_for_levelII
+    (c : LevelIIComparandum) :
+    Not (DiagnosticSource.behavioural.allowedFor (.levelII c)) := by
+  simp [DiagnosticSource.allowedFor]
+
 structure ComparativeConcept where
   name : String
   picksOut : Comparandum
-  diagnostics : String
-deriving Repr
+  wellFormed : picksOut.wellFormed
+  diagnostics : DiagnosticBattery picksOut
 
 /- Language-internal realizations.  The language index is what prevents
    a realization in one grammar from being silently reused in another. -/
@@ -134,7 +176,7 @@ structure FirewallProtocol (L : Language) where
 /- A dependency graph for the anti-circularity claim.  An edge
    `FirewallStep L a b` means that `b` is allowed to depend on `a`.
    The graph permits forms to enter mapping, coupling, and
-   naturalization claims, but not Level-I diagnosis. -/
+   naturalization claims, but not diagnostic claims. -/
 
 inductive EvidenceNode (L : Language) where
   | behaviouralEvidence (name : String)
@@ -209,6 +251,14 @@ inductive FirewallStep (L : Language) :
       FirewallStep L
         (.levelIDiagnosis c)
         (.naturalizationClaim (.levelI c))
+  | levelII_diagnosis_to_naturalization (c : LevelIIComparandum) :
+      FirewallStep L
+        (.levelIIDiagnosis c)
+        (.naturalizationClaim (.levelII c))
+  | profile_diagnosis_to_naturalization (p : DecomposedProfile) :
+      FirewallStep L
+        (.profileDiagnosis p)
+        (.naturalizationClaim (.profile p))
   | mapping_to_naturalization (c : Comparandum) (form : Realization L) :
       FirewallStep L
         (.mappingClaim c form)
@@ -231,6 +281,12 @@ def FormOriginReachable {L : Language} : EvidenceNode L -> Prop
   | .mappingClaim _ _ => True
   | .couplingClaim _ _ => True
   | .naturalizationClaim _ => True
+  | _ => False
+
+def DiagnosticNode {L : Language} : EvidenceNode L -> Prop
+  | .levelIDiagnosis _ => True
+  | .levelIIDiagnosis _ => True
+  | .profileDiagnosis _ => True
   | _ => False
 
 theorem form_step_preserves_form_origin
@@ -260,6 +316,35 @@ theorem no_form_path_to_levelI_diagnosis
   have hreach := form_path_preserves_form_origin hpath
     (by simp [FormOriginReachable])
   simp [FormOriginReachable] at hreach
+
+theorem no_form_origin_path_to_diagnostic
+    {L : Language} {a b : EvidenceNode L}
+    (ha : FormOriginReachable a)
+    (hb : DiagnosticNode b) :
+    Not (Path (FirewallStep L) a b) := by
+  intro hpath
+  have hreach := form_path_preserves_form_origin hpath ha
+  cases b <;> simp [FormOriginReachable, DiagnosticNode] at hreach hb
+
+theorem no_form_path_to_levelII_diagnosis
+    {L : Language} (form : Realization L) (c : LevelIIComparandum) :
+    Not
+      (Path (FirewallStep L)
+        (.formObservation form)
+        (.levelIIDiagnosis c)) :=
+  no_form_origin_path_to_diagnostic
+    (by simp [FormOriginReachable])
+    (by simp [DiagnosticNode])
+
+theorem no_form_path_to_profile_diagnosis
+    {L : Language} (form : Realization L) (p : DecomposedProfile) :
+    Not
+      (Path (FirewallStep L)
+        (.formObservation form)
+        (.profileDiagnosis p)) :=
+  no_form_origin_path_to_diagnostic
+    (by simp [FormOriginReachable])
+    (by simp [DiagnosticNode])
 
 theorem no_mapping_path_to_levelI_diagnosis
     {L : Language} (d : Comparandum) (form : Realization L)
@@ -294,6 +379,34 @@ theorem no_naturalization_path_to_levelI_diagnosis
   have hreach := form_path_preserves_form_origin hpath
     (by simp [FormOriginReachable])
   simp [FormOriginReachable] at hreach
+
+/- A deliberately leaky graph shows what the theorem is ruling out:
+   adding even one edge from a form observation into a diagnostic claim
+   creates a circular path immediately. -/
+
+inductive LeakyFirewallStep (L : Language) :
+    EvidenceNode L -> EvidenceNode L -> Prop where
+  | safe {a b : EvidenceNode L} :
+      FirewallStep L a b -> LeakyFirewallStep L a b
+  | form_to_levelI_diagnosis
+      (form : Realization L) (c : LevelIComparandum) :
+      LeakyFirewallStep L
+        (.formObservation form)
+        (.levelIDiagnosis c)
+  | form_to_levelII_diagnosis
+      (form : Realization L) (c : LevelIIComparandum) :
+      LeakyFirewallStep L
+        (.formObservation form)
+        (.levelIIDiagnosis c)
+
+theorem leaky_form_path_to_levelI_diagnosis
+    {L : Language} (form : Realization L) (c : LevelIComparandum) :
+    Path (LeakyFirewallStep L)
+      (.formObservation form)
+      (.levelIDiagnosis c) :=
+  Path.cons
+    (LeakyFirewallStep.form_to_levelI_diagnosis form c)
+    Path.refl
 
 /- Cross-level couplings are allowed, but they carry explicit evidence
    and never make the coupled comparanda identical. -/
@@ -334,6 +447,7 @@ structure Theory where
   indeterminate : Comparandum -> Prop
 
 structure Naturalized (T : Theory) (c : Comparandum) : Prop where
+  wellFormed : c.wellFormed
   hasStability : T.stable c
   hasMechanism : T.mechanism c
   hasProjectibility : T.projectible c
@@ -415,16 +529,86 @@ def toyEnglishMapping : Mapping English :=
     support := toyWeight_support }
 
 /- A comparative concept specifies a comparandum; it is not itself that
-   comparandum.  A language-internal realization can map to the same
-   comparandum without being identical to it. -/
+   comparandum.  Its diagnostic battery is typed by the comparandum,
+   so a Level-I concept cannot be given a morphosyntactic diagnostic
+   as its identifying evidence.  A language-internal realization can
+   map to the same comparandum without being identical to it. -/
+
+def anaphoricUptakeDiagnostic :
+    DiagnosticItem definitenessCross :=
+  { source := .behavioural
+    label := "anaphoric uptake"
+    allowed := by
+      unfold definitenessCross
+      simp [DiagnosticSource.allowedFor] }
+
+def bridgingDiagnostic :
+    DiagnosticItem definitenessCross :=
+  { source := .discourse
+    label := "bridging"
+    allowed := by
+      unfold definitenessCross
+      simp [DiagnosticSource.allowedFor] }
+
+def definitenessBattery :
+    DiagnosticBattery definitenessCross :=
+  { items := [anaphoricUptakeDiagnostic, bridgingDiagnostic]
+    nonempty := by simp }
+
+def extractionDiagnostic :
+    DiagnosticItem subjectCross :=
+  { source := .morphosyntactic
+    label := "extraction behaviour"
+    allowed := by
+      unfold subjectCross
+      simp [DiagnosticSource.allowedFor] }
+
+def subjectBattery :
+    DiagnosticBattery subjectCross :=
+  { items := [extractionDiagnostic]
+    nonempty := by simp }
+
+def subjectConcept : ComparativeConcept :=
+  { name := "subject diagnostic"
+    picksOut := subjectCross
+    wellFormed := by
+      unfold subjectCross
+      simp [Comparandum.wellFormed]
+    diagnostics := subjectBattery }
 
 def definitenessConcept : ComparativeConcept :=
   { name := "definiteness diagnostic"
     picksOut := definitenessCross
-    diagnostics := "anaphoric uptake, uniqueness, bridging, anti-novelty" }
+    wellFormed := by
+      unfold definitenessCross
+      simp [Comparandum.wellFormed]
+    diagnostics := definitenessBattery }
 
 example : definitenessConcept.picksOut = definitenessCross :=
   rfl
+
+def emptyProfile : DecomposedProfile :=
+  { name := "empty profile"
+    levelIComponents := []
+    levelIIComponents := [] }
+
+theorem empty_profile_not_well_formed :
+    Not (Comparandum.profile emptyProfile).wellFormed := by
+  simp [
+    Comparandum.wellFormed,
+    DecomposedProfile.hasComponents,
+    emptyProfile
+  ]
+
+theorem no_concept_for_empty_profile
+    (concept : ComparativeConcept) :
+    Not (concept.picksOut = .profile emptyProfile) := by
+  intro h
+  have hwell :
+      (Comparandum.profile emptyProfile).wellFormed := by
+    rw [← h]
+    exact concept.wellFormed
+  exact empty_profile_not_well_formed hwell
 
 example :
     Path (FirewallStep English)
