@@ -131,6 +131,170 @@ structure FirewallProtocol (L : Language) where
   diagnoseLevelII :
     (c : LevelIIComparandum) -> LevelIIDiagnostic L c -> Prop
 
+/- A dependency graph for the anti-circularity claim.  An edge
+   `FirewallStep L a b` means that `b` is allowed to depend on `a`.
+   The graph permits forms to enter mapping, coupling, and
+   naturalization claims, but not Level-I diagnosis. -/
+
+inductive EvidenceNode (L : Language) where
+  | behaviouralEvidence (name : String)
+  | discourseEvidence (name : String)
+  | morphosyntacticEvidence (name : String)
+  | levelIDiagnosis (c : LevelIComparandum)
+  | levelIIDiagnosis (c : LevelIIComparandum)
+  | profileDiagnosis (p : DecomposedProfile)
+  | formObservation (form : Realization L)
+  | mappingClaim (c : Comparandum) (form : Realization L)
+  | couplingClaim (c d : Comparandum)
+  | naturalizationClaim (c : Comparandum)
+deriving DecidableEq, Repr
+
+inductive FirewallStep (L : Language) :
+    EvidenceNode L -> EvidenceNode L -> Prop where
+  | behaviour_to_levelI (name : String) (c : LevelIComparandum) :
+      FirewallStep L
+        (.behaviouralEvidence name)
+        (.levelIDiagnosis c)
+  | discourse_to_levelI (name : String) (c : LevelIComparandum) :
+      FirewallStep L
+        (.discourseEvidence name)
+        (.levelIDiagnosis c)
+  | morphosyntax_to_levelII (name : String) (c : LevelIIComparandum) :
+      FirewallStep L
+        (.morphosyntacticEvidence name)
+        (.levelIIDiagnosis c)
+  | levelI_to_profile {c : LevelIComparandum} {p : DecomposedProfile} :
+      c ∈ p.levelIComponents ->
+      FirewallStep L
+        (.levelIDiagnosis c)
+        (.profileDiagnosis p)
+  | levelII_to_profile {c : LevelIIComparandum} {p : DecomposedProfile} :
+      c ∈ p.levelIIComponents ->
+      FirewallStep L
+        (.levelIIDiagnosis c)
+        (.profileDiagnosis p)
+  | form_to_mapping (c : Comparandum) (form : Realization L) :
+      FirewallStep L
+        (.formObservation form)
+        (.mappingClaim c form)
+  | levelI_to_mapping (c : LevelIComparandum) (form : Realization L) :
+      FirewallStep L
+        (.levelIDiagnosis c)
+        (.mappingClaim (.levelI c) form)
+  | levelII_to_mapping (c : LevelIIComparandum) (form : Realization L) :
+      FirewallStep L
+        (.levelIIDiagnosis c)
+        (.mappingClaim (.levelII c) form)
+  | profile_to_mapping (p : DecomposedProfile) (form : Realization L) :
+      FirewallStep L
+        (.profileDiagnosis p)
+        (.mappingClaim (.profile p) form)
+  | levelI_to_coupling (c : LevelIComparandum) (d : Comparandum) :
+      FirewallStep L
+        (.levelIDiagnosis c)
+        (.couplingClaim (.levelI c) d)
+  | levelII_to_coupling (c : LevelIIComparandum) (d : Comparandum) :
+      FirewallStep L
+        (.levelIIDiagnosis c)
+        (.couplingClaim (.levelII c) d)
+  | profile_to_coupling (p : DecomposedProfile) (d : Comparandum) :
+      FirewallStep L
+        (.profileDiagnosis p)
+        (.couplingClaim (.profile p) d)
+  | mapping_to_coupling (c d : Comparandum) (form : Realization L) :
+      FirewallStep L
+        (.mappingClaim c form)
+        (.couplingClaim c d)
+  | diagnosis_to_naturalization (c : LevelIComparandum) :
+      FirewallStep L
+        (.levelIDiagnosis c)
+        (.naturalizationClaim (.levelI c))
+  | mapping_to_naturalization (c : Comparandum) (form : Realization L) :
+      FirewallStep L
+        (.mappingClaim c form)
+        (.naturalizationClaim c)
+  | coupling_to_naturalization (c d : Comparandum) :
+      FirewallStep L
+        (.couplingClaim c d)
+        (.naturalizationClaim c)
+
+inductive Path {α : Type} (Step : α -> α -> Prop) :
+    α -> α -> Prop where
+  | refl {a : α} : Path Step a a
+  | cons {a b c : α} :
+      Step a b -> Path Step b c -> Path Step a c
+
+/- The downstream side of the graph reachable from forms. -/
+
+def FormOriginReachable {L : Language} : EvidenceNode L -> Prop
+  | .formObservation _ => True
+  | .mappingClaim _ _ => True
+  | .couplingClaim _ _ => True
+  | .naturalizationClaim _ => True
+  | _ => False
+
+theorem form_step_preserves_form_origin
+    {L : Language} {a b : EvidenceNode L}
+    (ha : FormOriginReachable a)
+    (hstep : FirewallStep L a b) :
+    FormOriginReachable b := by
+  cases hstep <;> simp [FormOriginReachable] at ha ⊢
+
+theorem form_path_preserves_form_origin
+    {L : Language} {a b : EvidenceNode L}
+    (hpath : Path (FirewallStep L) a b)
+    (ha : FormOriginReachable a) :
+    FormOriginReachable b := by
+  induction hpath with
+  | refl => exact ha
+  | cons hstep htail ih =>
+      exact ih (form_step_preserves_form_origin ha hstep)
+
+theorem no_form_path_to_levelI_diagnosis
+    {L : Language} (form : Realization L) (c : LevelIComparandum) :
+    Not
+      (Path (FirewallStep L)
+        (.formObservation form)
+        (.levelIDiagnosis c)) := by
+  intro hpath
+  have hreach := form_path_preserves_form_origin hpath
+    (by simp [FormOriginReachable])
+  simp [FormOriginReachable] at hreach
+
+theorem no_mapping_path_to_levelI_diagnosis
+    {L : Language} (d : Comparandum) (form : Realization L)
+    (c : LevelIComparandum) :
+    Not
+      (Path (FirewallStep L)
+        (.mappingClaim d form)
+        (.levelIDiagnosis c)) := by
+  intro hpath
+  have hreach := form_path_preserves_form_origin hpath
+    (by simp [FormOriginReachable])
+  simp [FormOriginReachable] at hreach
+
+theorem no_coupling_path_to_levelI_diagnosis
+    {L : Language} (d e : Comparandum) (c : LevelIComparandum) :
+    Not
+      (Path (FirewallStep L)
+        (.couplingClaim d e)
+        (.levelIDiagnosis c)) := by
+  intro hpath
+  have hreach := form_path_preserves_form_origin hpath
+    (by simp [FormOriginReachable])
+  simp [FormOriginReachable] at hreach
+
+theorem no_naturalization_path_to_levelI_diagnosis
+    {L : Language} (d : Comparandum) (c : LevelIComparandum) :
+    Not
+      (Path (FirewallStep L)
+        (.naturalizationClaim d)
+        (.levelIDiagnosis c)) := by
+  intro hpath
+  have hreach := form_path_preserves_form_origin hpath
+    (by simp [FormOriginReachable])
+  simp [FormOriginReachable] at hreach
+
 /- Cross-level couplings are allowed, but they carry explicit evidence
    and never make the coupled comparanda identical. -/
 
@@ -261,5 +425,42 @@ def definitenessConcept : ComparativeConcept :=
 
 example : definitenessConcept.picksOut = definitenessCross :=
   rfl
+
+example :
+    Path (FirewallStep English)
+      (.behaviouralEvidence "anaphoric uptake")
+      (.levelIDiagnosis (.semanticTarget "definiteness")) :=
+  Path.cons
+    (FirewallStep.behaviour_to_levelI
+      "anaphoric uptake"
+      (.semanticTarget "definiteness"))
+    Path.refl
+
+example :
+    Path (FirewallStep English)
+      (.formObservation definiteDetEng)
+      (.mappingClaim definitenessCross definiteDetEng) :=
+  Path.cons
+    (FirewallStep.form_to_mapping definitenessCross definiteDetEng)
+    Path.refl
+
+example :
+    Path (FirewallStep English)
+      (.formObservation definiteDetEng)
+      (.naturalizationClaim definitenessCross) :=
+  Path.cons
+    (FirewallStep.form_to_mapping definitenessCross definiteDetEng)
+    (Path.cons
+      (FirewallStep.mapping_to_naturalization
+        definitenessCross definiteDetEng)
+      Path.refl)
+
+example :
+    Not
+      (Path (FirewallStep English)
+        (.formObservation definiteDetEng)
+        (.levelIDiagnosis (.semanticTarget "definiteness"))) :=
+  no_form_path_to_levelI_diagnosis definiteDetEng
+    (.semanticTarget "definiteness")
 
 end TypologyOntology
