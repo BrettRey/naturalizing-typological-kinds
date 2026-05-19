@@ -408,6 +408,122 @@ theorem leaky_form_path_to_levelI_diagnosis
     (LeakyFirewallStep.form_to_levelI_diagnosis form c)
     Path.refl
 
+/- Temporal staging: same-time diagnostic circularity is forbidden, but
+   diachronic feedback is allowed.  A form at time `t` may help create
+   behavioural, discourse, or morphosyntactic evidence at time `t+1`.
+   That later evidence can then support a later diagnosis. -/
+
+structure TimedNode (L : Language) where
+  time : Nat
+  node : EvidenceNode L
+deriving DecidableEq, Repr
+
+namespace TimedNode
+
+def atTime {L : Language} (time : Nat) (node : EvidenceNode L) :
+    TimedNode L :=
+  { time := time, node := node }
+
+end TimedNode
+
+inductive TemporalStep (L : Language) :
+    TimedNode L -> TimedNode L -> Prop where
+  | same_time {time : Nat} {a b : EvidenceNode L} :
+      FirewallStep L a b ->
+      TemporalStep L
+        (TimedNode.atTime time a)
+        (TimedNode.atTime time b)
+  | mapping_to_next_behaviour
+      (time : Nat) (c : LevelIComparandum)
+      (form : Realization L) (label : String) :
+      TemporalStep L
+        (TimedNode.atTime time (.mappingClaim (.levelI c) form))
+        (TimedNode.atTime (Nat.succ time) (.behaviouralEvidence label))
+  | mapping_to_next_discourse
+      (time : Nat) (c : LevelIComparandum)
+      (form : Realization L) (label : String) :
+      TemporalStep L
+        (TimedNode.atTime time (.mappingClaim (.levelI c) form))
+        (TimedNode.atTime (Nat.succ time) (.discourseEvidence label))
+  | mapping_to_next_morphosyntax
+      (time : Nat) (c : LevelIIComparandum)
+      (form : Realization L) (label : String) :
+      TemporalStep L
+        (TimedNode.atTime time (.mappingClaim (.levelII c) form))
+        (TimedNode.atTime (Nat.succ time) (.morphosyntacticEvidence label))
+
+def TemporalFormOriginSafe {L : Language}
+    (startTime : Nat) (n : TimedNode L) : Prop :=
+  startTime <= n.time /\
+    (n.time = startTime -> FormOriginReachable n.node)
+
+theorem form_origin_not_diagnostic
+    {L : Language} {node : EvidenceNode L} :
+    FormOriginReachable node -> DiagnosticNode node -> False := by
+  cases node <;> simp [FormOriginReachable, DiagnosticNode]
+
+theorem temporal_step_preserves_form_origin_safe
+    {L : Language} {startTime : Nat} {a b : TimedNode L}
+    (ha : TemporalFormOriginSafe startTime a)
+    (hstep : TemporalStep L a b) :
+    TemporalFormOriginSafe startTime b := by
+  cases hstep with
+  | same_time hfirewall =>
+      constructor
+      · exact ha.left
+      · intro hbtime
+        exact form_step_preserves_form_origin (ha.right hbtime) hfirewall
+  | mapping_to_next_behaviour time c form label =>
+      constructor
+      · exact Nat.le_trans ha.left (Nat.le_succ time)
+      · intro hbtime
+        have hlt : startTime < Nat.succ time :=
+          Nat.lt_of_le_of_lt ha.left (Nat.lt_succ_self time)
+        have hne : startTime ≠ Nat.succ time := Nat.ne_of_lt hlt
+        exact False.elim (hne hbtime.symm)
+  | mapping_to_next_discourse time c form label =>
+      constructor
+      · exact Nat.le_trans ha.left (Nat.le_succ time)
+      · intro hbtime
+        have hlt : startTime < Nat.succ time :=
+          Nat.lt_of_le_of_lt ha.left (Nat.lt_succ_self time)
+        have hne : startTime ≠ Nat.succ time := Nat.ne_of_lt hlt
+        exact False.elim (hne hbtime.symm)
+  | mapping_to_next_morphosyntax time c form label =>
+      constructor
+      · exact Nat.le_trans ha.left (Nat.le_succ time)
+      · intro hbtime
+        have hlt : startTime < Nat.succ time :=
+          Nat.lt_of_le_of_lt ha.left (Nat.lt_succ_self time)
+        have hne : startTime ≠ Nat.succ time := Nat.ne_of_lt hlt
+        exact False.elim (hne hbtime.symm)
+
+theorem temporal_path_preserves_form_origin_safe
+    {L : Language} {startTime : Nat} {a b : TimedNode L}
+    (hpath : Path (TemporalStep L) a b)
+    (ha : TemporalFormOriginSafe startTime a) :
+    TemporalFormOriginSafe startTime b := by
+  induction hpath with
+  | refl => exact ha
+  | cons hstep htail ih =>
+      exact ih (temporal_step_preserves_form_origin_safe ha hstep)
+
+theorem no_temporal_form_path_to_same_time_diagnostic
+    {L : Language} (time : Nat) (form : Realization L)
+    (target : EvidenceNode L) (htarget : DiagnosticNode target) :
+    Not
+      (Path (TemporalStep L)
+        (TimedNode.atTime time (.formObservation form))
+        (TimedNode.atTime time target)) := by
+  intro hpath
+  have hsafe := temporal_path_preserves_form_origin_safe hpath
+    (by
+      constructor
+      · exact Nat.le_refl time
+      · intro htime
+        simp [TimedNode.atTime, FormOriginReachable])
+  exact form_origin_not_diagnostic (hsafe.right rfl) htarget
+
 /- Cross-level couplings are allowed, but they carry explicit evidence
    and never make the coupled comparanda identical. -/
 
@@ -646,5 +762,37 @@ example :
         (.levelIDiagnosis (.semanticTarget "definiteness"))) :=
   no_form_path_to_levelI_diagnosis definiteDetEng
     (.semanticTarget "definiteness")
+
+example :
+    Path (TemporalStep English)
+      (TimedNode.atTime 0 (.formObservation definiteDetEng))
+      (TimedNode.atTime 1
+        (.levelIDiagnosis (.semanticTarget "definiteness"))) :=
+  Path.cons
+    (TemporalStep.same_time
+      (FirewallStep.form_to_mapping definitenessCross definiteDetEng))
+    (Path.cons
+      (TemporalStep.mapping_to_next_behaviour 0
+        (.semanticTarget "definiteness")
+        definiteDetEng
+        "future anaphoric uptake")
+      (Path.cons
+        (TemporalStep.same_time
+          (FirewallStep.behaviour_to_levelI
+            "future anaphoric uptake"
+            (.semanticTarget "definiteness")))
+        Path.refl))
+
+example :
+    Not
+      (Path (TemporalStep English)
+        (TimedNode.atTime 0 (.formObservation definiteDetEng))
+        (TimedNode.atTime 0
+          (.levelIDiagnosis (.semanticTarget "definiteness")))) :=
+  no_temporal_form_path_to_same_time_diagnostic
+    0
+    definiteDetEng
+    (.levelIDiagnosis (.semanticTarget "definiteness"))
+    (by simp [DiagnosticNode])
 
 end TypologyOntology
